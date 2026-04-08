@@ -1,0 +1,21 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect to Havenwise",
+        "description": "Enter your Havenwise account credentials.",
+        "data": {
+          "email": "Email",
+          "password": "Password"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Invalid email or password.",
+      "cannot_connect": "Unable to connect to Havenwise. Please try again."
+    },
+    "abort": {
+      "already_configured": "This account is already configured."
+    }
+  }
+}
