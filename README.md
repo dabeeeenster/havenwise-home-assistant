@@ -22,7 +22,7 @@ A custom Home Assistant integration for [Havenwise](https://havenwise.co.uk/) he
 2. Click the **three dots menu** (top right) and select **Custom repositories**
 3. In the **Repository** field, paste the GitHub URL for this repo:
    ```
-   https://github.com/benrometsch/havenwise-home-assistant
+   https://github.com/dabeeeenster/havenwise-home-assistant
    ```
 4. In the **Category** dropdown, select **Integration**
 5. Click **Add**
