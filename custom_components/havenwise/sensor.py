@@ -1,5 +1,7 @@
 """Sensor platform for Havenwise energy and performance data."""
 
+import logging
+
 from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorEntity,
@@ -13,6 +15,8 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import DOMAIN
 from .coordinator import HavenwiseCoordinator
+
+_LOGGER = logging.getLogger(__name__)
 
 SENSOR_DEFINITIONS = [
     {
@@ -152,4 +156,11 @@ class HavenwiseSensor(CoordinatorEntity, SensorEntity):
 
     @property
     def native_value(self):
-        return self._defn["value_fn"](self.coordinator.data)
+        value = self._defn["value_fn"](self.coordinator.data)
+        _LOGGER.debug(
+            "Sensor %s value: %s (last_updated=%s)",
+            self._defn["key"],
+            value,
+            self.coordinator.last_update_success_time,
+        )
+        return value

@@ -96,11 +96,14 @@ class HavenwiseClient:
     def _request(self, method: str, url: str, **kwargs):
         """Make an HTTP request with automatic token refresh on 401."""
         kwargs.setdefault("timeout", 15)
+        _LOGGER.debug("API request: %s %s", method, url)
         resp = requests.request(method, url, headers=self._headers(), **kwargs)
         if resp.status_code == 401:
-            _LOGGER.debug("Got 401, refreshing token and retrying")
+            _LOGGER.warning("Got 401 for %s %s, refreshing token and retrying", method, url)
             self.refresh_auth()
             resp = requests.request(method, url, headers=self._headers(), **kwargs)
+        if not resp.ok:
+            _LOGGER.error("API error %s for %s %s: %s", resp.status_code, method, url, resp.text[:500])
         resp.raise_for_status()
         return resp.json()
 
@@ -214,11 +217,13 @@ class HavenwiseClient:
     def get_system_temps(self):
         doc = self._get_system_temps_doc()
         if not doc:
+            _LOGGER.warning("No systemTemps document found in Firestore")
             return None
         out = {}
         for k, v in doc["fields"].items():
             val = list(v.values())[0]
             out[k] = val
+        _LOGGER.debug("Parsed system_temps: %s", out)
         return out
 
     def _update_system_temps(self, fields: dict):
