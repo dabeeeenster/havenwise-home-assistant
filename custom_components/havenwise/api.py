@@ -99,8 +99,12 @@ class HavenwiseClient:
         _LOGGER.debug("API request: %s %s", method, url)
         resp = requests.request(method, url, headers=self._headers(), **kwargs)
         if resp.status_code == 401:
-            _LOGGER.warning("Got 401 for %s %s, refreshing token and retrying", method, url)
-            self.refresh_auth()
+            _LOGGER.warning("Got 401 for %s %s, attempting token refresh", method, url)
+            try:
+                self.refresh_auth()
+            except (HavenwiseAuthError, Exception):
+                _LOGGER.warning("Token refresh failed, attempting full re-login")
+                self.login()
             resp = requests.request(method, url, headers=self._headers(), **kwargs)
         if not resp.ok:
             _LOGGER.error("API error %s for %s %s: %s", resp.status_code, method, url, resp.text[:500])
