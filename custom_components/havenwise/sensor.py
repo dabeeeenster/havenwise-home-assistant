@@ -105,22 +105,35 @@ SENSOR_DEFINITIONS = [
 
 def _perf_today(data: dict, category: str, field: str):
     perf = data.get("performance")
-    if not perf or not perf.get("data"):
+    if not perf or not isinstance(perf.get("data"), list) or not perf["data"]:
+        _LOGGER.debug("No performance data available (perf=%s)", type(perf))
         return None
     today = perf["data"][-1]
-    return today.get(category, {}).get(field)
+    val = today.get(category, {}).get(field)
+    _LOGGER.debug("_perf_today(%s, %s) = %s", category, field, val)
+    return val
 
 
 def _perf_today_field(data: dict, field: str):
     perf = data.get("performance")
-    if not perf or not perf.get("data"):
+    if not perf or not isinstance(perf.get("data"), list) or not perf["data"]:
         return None
-    return perf["data"][-1].get(field)
+    val = perf["data"][-1].get(field)
+    _LOGGER.debug("_perf_today_field(%s) = %s", field, val)
+    return val
 
 
 def _system_temp(data: dict, field: str):
-    val = data.get("system_temps", {}).get(field)
-    return float(val) if val is not None else None
+    temps = data.get("system_temps", {})
+    val = temps.get(field)
+    _LOGGER.debug("_system_temp(%s) raw=%s type=%s", field, val, type(val))
+    if val is None:
+        return None
+    try:
+        return float(val)
+    except (ValueError, TypeError) as err:
+        _LOGGER.error("Cannot convert system_temp %s=%s to float: %s", field, val, err)
+        return None
 
 
 async def async_setup_entry(
@@ -156,11 +169,15 @@ class HavenwiseSensor(CoordinatorEntity, SensorEntity):
 
     @property
     def native_value(self):
-        value = self._defn["value_fn"](self.coordinator.data)
-        _LOGGER.debug(
-            "Sensor %s value: %s (last_updated=%s)",
-            self._defn["key"],
-            value,
-            self.coordinator.last_update_success_time,
-        )
+        try:
+            value = self._defn["value_fn"](self.coordinator.data)
+        except Exception as err:
+            _LOGGER.error(
+                "Error extracting value for sensor %s: %s (data keys: %s)",
+                self._defn["key"],
+                err,
+                list(self.coordinator.data.keys()) if self.coordinator.data else None,
+            )
+            return None
+        _LOGGER.debug("Sensor %s value: %s", self._defn["key"], value)
         return value
