@@ -31,6 +31,7 @@ class HavenwiseWaterHeater(CoordinatorEntity, WaterHeaterEntity):
     """Havenwise hot water entity."""
 
     _attr_has_entity_name = True
+    _attr_force_update = True
     _attr_name = "Hot Water"
     _attr_temperature_unit = UnitOfTemperature.CELSIUS
     _attr_operation_list = [STATE_IDLE, STATE_HEATING, STATE_BOOST]

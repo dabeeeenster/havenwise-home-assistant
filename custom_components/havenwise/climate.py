@@ -30,6 +30,7 @@ class HavenwiseClimate(CoordinatorEntity, ClimateEntity):
     """Havenwise heating climate entity."""
 
     _attr_has_entity_name = True
+    _attr_force_update = True
     _attr_name = "Heating"
     _attr_temperature_unit = UnitOfTemperature.CELSIUS
     _attr_hvac_modes = [HVACMode.HEAT, HVACMode.OFF]

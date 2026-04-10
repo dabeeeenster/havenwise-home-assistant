@@ -42,6 +42,12 @@ class HavenwiseCoordinator(DataUpdateCoordinator):
     def _fetch_data(self) -> dict:
         _LOGGER.debug("Starting data fetch from Havenwise API")
 
+        try:
+            self.client.get_system_status()
+            _LOGGER.debug("Triggered system status refresh")
+        except Exception as err:
+            _LOGGER.warning("Failed to trigger system status refresh: %s", err)
+
         profile = self.client.get_profile()
         _LOGGER.debug("Profile fetched: %s", profile)
 
